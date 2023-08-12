@@ -19,10 +19,9 @@ class AvaliacaoSerializer(serializers.ModelSerializer):
         )
 
 class CursoSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Curso
-        filds = (
+        fields = (
             'id',
             'titulo',
             'url',
