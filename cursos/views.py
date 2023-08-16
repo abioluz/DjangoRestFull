@@ -9,6 +9,8 @@ from rest_framework import mixins
 from .models import Curso, Avaliacao
 from .serializers import CursoSerializer, AvaliacaoSerializer
 
+from escola.settings import REST_FRAMEWORK_PAGINACAO
+
 '''
 API V1
 '''
@@ -54,8 +56,18 @@ class CursoViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['get'])
     def avaliacoes(self, request, pk=None):
-        curso = self.get_object()
-        serializer = AvaliacaoSerializer(curso.avaliacoes.all(), many=True)
+        # self.pagination_class.page_size = 3
+        self.pagination_class.page_size = REST_FRAMEWORK_PAGINACAO
+        avaliacoes = Avaliacao.objects.filter(curso_id=pk)
+        page = self.paginate_queryset(avaliacoes)
+
+        if page is not None:
+            serializer = AvaliacaoSerializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        # curso = self.get_object()
+        # serializer = AvaliacaoSerializer(curso.avaliacoes.all(), many=True)
+        serializer = AvaliacaoSerializer(avaliacoes, many=True)
         return Response(serializer.data)
 
 '''class AvaliacaoViewSet(viewsets.ModelViewSet):
