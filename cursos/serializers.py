@@ -1,5 +1,7 @@
 from rest_framework import serializers
 from .models import Curso, Avaliacao
+from django.db.models import Avg
+
 
 class AvaliacaoSerializer(serializers.ModelSerializer):
     class Meta:
@@ -17,7 +19,7 @@ class AvaliacaoSerializer(serializers.ModelSerializer):
             'criacao',
             'ativo'
         )
-    def validate_avaliacao(sel, valor):
+    def validate_avaliacao(self, valor):
         if valor in range(1, 6):
             return valor
         raise serializers.ValidationError('A avaliação precisa ser um inteiro entre 1 e 5')
@@ -36,6 +38,8 @@ class CursoSerializer(serializers.ModelSerializer):
     '''
     # Primary Key Related Field
     avaliacoes = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
+    media_avaliacoes = serializers.SerializerMethodField()
+
 
     class Meta:
         model = Curso
@@ -45,5 +49,13 @@ class CursoSerializer(serializers.ModelSerializer):
             'url',
             'criacao',
             'ativo',
-            'avaliacoes'
+            'avaliacoes',
+            'media_avaliacoes'
         )
+    def get_media_avaliacoes(self, obj):
+        # tem que ter get_ e o nome da variável
+        media = obj.avaliacoes.aggregate(Avg('avaliacao')).get('avaliacao__avg')
+        print(media)
+        if media is None:
+            return 0
+        return round(media * 2) / 2
