@@ -12,7 +12,7 @@ from .models import Curso, Avaliacao
 from .serializers import CursoSerializer, AvaliacaoSerializer
 
 from escola.settings import REST_FRAMEWORK_PAGINACAO
-from .permissions import EhSuperUser
+from .permissions import EhSuperUser, TemPermissao, TemPermissao2
 
 '''
 API V1
@@ -55,8 +55,10 @@ API V2
 
 class CursoViewSet(viewsets.ModelViewSet):
     permission_classes = (
-        EhSuperUser,
-        permissions.DjangoModelPermissions,
+        # EhSuperUser,
+        # TemPermissao,
+        TemPermissao2,
+        permissions.DjangoObjectPermissions,
     )
     queryset = Curso.objects.all()
     serializer_class = CursoSerializer
